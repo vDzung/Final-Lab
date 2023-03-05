@@ -1,0 +1,8 @@
+---
+- hosts: "controlmachine"
+  gather_facts: yes
+#  become: yes
+  tasks:
+  - name: check status
+    shell: |
+      whoami
