@@ -6,8 +6,7 @@ filters:
   tag:Environment: dev
   instance-state-name: running
 groups:
-  #wireguard_master: "tags.Stack == 'wireguard' and tags.Role == 'master'"
-  app_01: "tags.Stack == 'app' and tags.Role == 'frontend'"
+  app_01: "tags.Stack == 'VMbase' and tags.Role == 'frontend'"
 compose:
   # set the ansible_host variable to connect with the private IP address without changing the hostname
   ansible_host: public_ip_address
