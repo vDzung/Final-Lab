@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ host_name }}"
+- hosts: app_01
   gather_facts: true
   become: true
   vars:
