@@ -1,5 +1,6 @@
 ---
 plugin: aws_ec2
+boto_profile: aws_profile
 regions:
   - ap-southeast-1
 filters:
