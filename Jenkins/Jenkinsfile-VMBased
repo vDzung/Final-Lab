@@ -1,0 +1,69 @@
+def COLOR_MAP = ['SUCCESS': 'good', 'FAILURE': 'danger', 'UNSTABLE': 'danger', 'ABORTED': 'danger']
+pipeline {
+  agent any
+  options {
+    ansiColor('xterm')
+    disableConcurrentBuilds()
+  }
+
+  environment {
+    ANSIBLE_FORCE_COLOR = true
+    ANSIBLE_STDOUT_CALLBACK = 'debug'
+    AWS_PROFILE = 'Dz01'
+    TIMESTAMP = """${sh(
+                returnStdout: true,
+                script: 'date --utc +%Y%m%d_%H%M%SZ'
+                ).trim()}"""
+  }
+
+  parameters {
+    string (name: 'gitBranch', defaultValue: 'main', description: 'Build from this branch')
+    string (name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Environment Name such as dev, staging, prod')
+    string (
+      defaultValue: 'develop',
+      description: 'Commit SHA for test',
+      name: 'git_sha'
+   )
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        dir('var/www/app') {
+          checkout ([$class: 'GitSCM',
+            branches: [[name: "${gitBranch}" ]],
+            userRemoteConfigs: [[
+              credentialsId: 'jenkins-ssh',
+              url: 'git@github.com:vytran4love/demo_01.git']]])
+        }
+      }
+    }
+
+    stage('Setup-parameters') {
+        steps {
+        dir('var/www/app') {
+          echo 'Setup ENV'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+      dir('var/www/app') {
+        sh """
+          export ANSIBLE_CONFIG="ansible.cfg"
+          ansible-galaxy install -r requirements.yml --force
+          ansible-inventory      -i inventory-tools.aws_ec2.yml --graph
+
+          ansible-playbook -i inventory-tools.aws_ec2.yml \\
+                          -e build_dir=${WORKSPACE}/var/www/app/landing/react-landing-page-template-2021\\
+                          -e deploy_dir=/usr/local/www/landing\\
+                          -e ansistrano_after_symlink_tasks_file=after-symlink.yml \\
+                          -e ansistrano_before_symlink_tasks_file=before-symlink.yml \\
+                          playbook-deploy.yml -v
+          """
+        }
+      }
+    }
+  }
+}
