@@ -1,0 +1,8 @@
+- src: git@github.com:geerlingguy/ansible-role-jenkins.git
+  scm: git
+  name: external.jenkins
+  version: master
+- src: git@github.com:geerlingguy/ansible-role-java.git
+  scm: git
+  name: external.java
+  version: master

@@ -1,0 +1,11 @@
+---
+plugin: aws_ec2
+regions:
+  - ap-southeast-1
+filters:
+  tag:Environment: dev
+  instance-state-name: running
+groups:
+  jenkins-demo: "tags.Stack == 'demo' and tags.Role == 'jenkins'"
+compose:
+  ansible_host: public_ip_address
